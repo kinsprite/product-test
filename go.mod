@@ -1,4 +1,4 @@
-module producttest
+module github.com/kinsprite/product-test
 
 go 1.12
 

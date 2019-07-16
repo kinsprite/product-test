@@ -26,7 +26,7 @@ import (
 	"log"
 	"net"
 
-	pb "producttest/pb"
+	pb "github.com/kinsprite/product-test/pb"
 
 	"google.golang.org/grpc"
 )
