@@ -1,4 +1,4 @@
-module product-test
+module producttest
 
 go 1.12
 
