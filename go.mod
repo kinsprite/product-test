@@ -4,6 +4,9 @@ go 1.12
 
 require (
 	github.com/golang/protobuf v1.3.2
+	github.com/json-iterator/go v1.1.6
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	go.elastic.co/apm v1.4.0
 	go.elastic.co/apm/module/apmgrpc v1.4.0
 	go.elastic.co/apm/module/apmhttp v1.4.0

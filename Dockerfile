@@ -1,11 +1,24 @@
-FROM golang
+# build
+FROM golang:1.12.6-alpine3.9 as build
+
 ENV PORT 8080
 EXPOSE 8080
 
-WORKDIR /go/src/app
-COPY . .
+RUN mkdir /app
+ADD . /app
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+ENV GOPROXY https://goproxy.io
+ENV GIN_MODE release
 
-CMD ["app"]
+WORKDIR  /app
+RUN go mod vendor
+RUN go build -mod=vendor -tags=jsoniter -o product-test .
+
+
+# release
+FROM alpine:3.9
+RUN mkdir /app
+COPY --from=build /app/product-test /app/product-test
+
+WORKDIR  /app
+CMD ["/app/product-test"]

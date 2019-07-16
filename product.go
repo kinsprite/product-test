@@ -23,13 +23,13 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"os"
 
+	jsoniter "github.com/json-iterator/go"
 	pb "github.com/kinsprite/producttest/pb"
 
 	"go.elastic.co/apm"
@@ -44,7 +44,9 @@ const (
 )
 
 var userServerURL = "http://user-test:80"
+
 var tracingClient = apmhttp.WrapClient(http.DefaultClient)
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // server is used to implement helloworld.GreeterServer.
 type server struct{}
