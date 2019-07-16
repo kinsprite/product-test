@@ -23,12 +23,19 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
+	"os"
 
 	pb "github.com/kinsprite/producttest/pb"
 
+	"go.elastic.co/apm"
 	"go.elastic.co/apm/module/apmgrpc"
+	"go.elastic.co/apm/module/apmhttp"
+	"golang.org/x/net/context/ctxhttp"
 	"google.golang.org/grpc"
 )
 
@@ -36,17 +43,58 @@ const (
 	port = ":8080"
 )
 
+var userServerURL = "http://user-test:80"
+var tracingClient = apmhttp.WrapClient(http.DefaultClient)
+
 // server is used to implement helloworld.GreeterServer.
 type server struct{}
 
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("Received: %v", in.Name)
-	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
+	userInfo := getUserInfo(ctx)
+	return &pb.HelloReply{Message: "Hello " + in.Name + ", userId: " + string(userInfo.ID)}, nil
 }
 
 func (s *server) SayHelloAgain(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	return &pb.HelloReply{Message: "Hello again " + in.Name}, nil
+}
+
+func (s *server) SayHelloStream(req *pb.HelloRequest, srv pb.Greeter_SayHelloStreamServer) error {
+	srv.Send(&pb.HelloReply{Message: "Hello stream[1] " + req.GetName()})
+	srv.Send(&pb.HelloReply{Message: "Hello stream[2] " + req.GetName()})
+	return nil
+}
+
+func getUserInfo(ctx context.Context) UserInfo {
+	resp, err := ctxhttp.Get(ctx, tracingClient, userServerURL+"/api/user/v1/userInfoBySession")
+
+	if err != nil {
+		apm.CaptureError(ctx, err).Send()
+		log.Println("ERROR   request user info")
+		return UserInfo{}
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Println("ERROR   reading user info")
+		return UserInfo{}
+	}
+
+	var userInfo UserInfo
+	json.Unmarshal(body, &userInfo)
+	return userInfo
+}
+
+func init() {
+	url := os.Getenv("USER_SERVER_URL")
+
+	if url != "" {
+		userServerURL = url
+	}
 }
 
 func main() {
