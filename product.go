@@ -28,6 +28,7 @@ import (
 
 	pb "github.com/kinsprite/producttest/pb"
 
+	"go.elastic.co/apm/module/apmgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -53,7 +54,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(apmgrpc.NewUnaryServerInterceptor()))
 	pb.RegisterGreeterServer(s, &server{})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
