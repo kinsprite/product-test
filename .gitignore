@@ -1,2 +1,2 @@
-/src/vendor
-/src/*.exe
+vendor/
+*.exe
