@@ -28,6 +28,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 
 	jsoniter "github.com/json-iterator/go"
 	pb "github.com/kinsprite/producttest/pb"
@@ -55,7 +56,8 @@ type server struct{}
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("Received: %v", in.Name)
 	userInfo := getUserInfo(ctx)
-	return &pb.HelloReply{Message: "Hello " + in.Name + ", userId: " + string(userInfo.ID)}, nil
+	userID := strconv.FormatInt(int64(userInfo.ID), 10)
+	return &pb.HelloReply{Message: "Hello " + in.Name + ", userId: " + userID}, nil
 }
 
 func (s *server) SayHelloAgain(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
