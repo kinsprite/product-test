@@ -76,13 +76,14 @@ func getUserBooks() (userBooks *[]UserBook, err error) {
 	userID := 10001
 	userBooks = &[]UserBook{}
 
-	err = db.Raw(`SELECT (C.id, C.code, C.name, c.price, B.isbn, B.comment)
-			FROM (
-				SELECT (product_id) FROM user_buys WHERE user_id = ?
-				) AS A
-			INNER JOIN books B ON A.product_id = B.product_id
-			LEFT JOIN products C ON B.product_id = C.id
-		`, userID).Scan(userBooks).Error
+	err = db.Raw(`SELECT C.id, C.code, C.name, B.isbn, B.comment
+		FROM (SELECT product_id FROM user_buys WHERE user_id = ?) AS A
+		INNER JOIN books B ON A.product_id = B.product_id
+		LEFT JOIN products C ON B.product_id = C.id`, userID).Scan(userBooks).Error
 
 	return
+}
+
+func createUserBooks() {
+
 }
