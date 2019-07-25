@@ -57,7 +57,15 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	log.Printf("Received: %v", in.Name)
 	userInfo := getUserInfo(ctx)
 	userID := strconv.FormatInt(int64(userInfo.ID), 10)
-	return &pb.HelloReply{Message: "Hello " + in.Name + ", userId: " + userID}, nil
+	var books string
+
+	if userBooks, err := getUserBooks(); err == nil {
+		if bytes, err := json.Marshal(userBooks); err == nil {
+			books = string(bytes)
+		}
+	}
+
+	return &pb.HelloReply{Message: "Hello " + in.Name + ", userId: " + userID + ", books: " + books}, nil
 }
 
 func (s *server) SayHelloAgain(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
