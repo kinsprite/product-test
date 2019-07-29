@@ -27,6 +27,8 @@ spec:
             value: "{{ .Values.apmServerUrl }}"
           - name: USER_SERVER_URL
             value: "{{ .Values.userServerUrl }}"
+          - name: KAFKA_BROKER_URL
+            value: "{{ .Values.kafkaBrokerUrl }}"
           - name: SQL_DRIVER_NAME
             valueFrom:
               configMapKeyRef:

@@ -177,3 +177,25 @@ func createUserBooks() {
 		db.Create(&userBuys[i])
 	}
 }
+
+func giveUserFreeBooks(userInfo *UserInfo) error {
+	var books []Book
+	db.Where("isbn in (?)", []string{"543-233-33", "543-233-43"}).Find(&books)
+
+	log.Printf("INFO   give %d books to user ID %d\n", len(books), userInfo.ID)
+
+	userBuys := make([]UserBuy, len(books))
+
+	for i, book := range books {
+		userBuys[i] = UserBuy{
+			UserID:    uint(userInfo.ID),
+			ProductID: book.ProductID,
+		}
+	}
+
+	for i := range userBuys {
+		db.Create(&userBuys[i])
+	}
+
+	return nil
+}

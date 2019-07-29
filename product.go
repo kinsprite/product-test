@@ -49,6 +49,12 @@ var userServerURL = "http://user-test:80"
 var tracingClient = apmhttp.WrapClient(http.DefaultClient)
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+type userHandler struct{}
+
+func (handler *userHandler) OnCreating(userInfo *UserInfo) error {
+	return giveUserFreeBooks(userInfo)
+}
+
 // server is used to implement helloworld.GreeterServer.
 type server struct{}
 
@@ -110,6 +116,10 @@ func init() {
 }
 
 func main() {
+	handler := userHandler{}
+	setUserCreatingHandler(&handler)
+	initMQ()
+
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
